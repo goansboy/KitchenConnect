@@ -44,60 +44,59 @@ router.get('/search', async (req, res) => {
 });
 
 // Follow a user
-router.post('/follow/:id', async (req, res) => {
-    const currentUserId = req.body.currentUserId;
+router.post('/:id/follow', async (req, res) => {
     const targetUserId = req.params.id;
+    const { currentUserId } = req.body;
 
-    if (currentUserId === targetUserId) {
-        return res.status(400).json({ error: "You can't follow yourself." });
+    if (!currentUserId || currentUserId === targetUserId) {
+        return res.status(400).json({ error: 'Invalid follow request.' });
     }
 
     try {
-        const currentUser = await User.findById(currentUserId);
         const targetUser = await User.findById(targetUserId);
+        const currentUser = await User.findById(currentUserId);
 
-        if (!currentUser || !targetUser) {
-            return res.status(404).json({ error: "User not found." });
+        if (!targetUser || !currentUser) {
+            return res.status(404).json({ error: 'User not found.' });
         }
 
-        if (!currentUser.following.includes(targetUserId)) {
-            currentUser.following.push(targetUserId);
+        if (!targetUser.followers.includes(currentUserId)) {
             targetUser.followers.push(currentUserId);
-
-            await currentUser.save();
+            currentUser.following.push(targetUserId);
             await targetUser.save();
+            await currentUser.save();
         }
 
-        res.status(200).json({ message: 'Followed successfully.' });
+        res.status(200).json({ message: 'Followed successfully' });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
 // Unfollow a user
-router.post('/unfollow/:id', async (req, res) => {
-    const currentUserId = req.body.currentUserId;
+router.post('/:id/unfollow', async (req, res) => {
     const targetUserId = req.params.id;
+    const { currentUserId } = req.body;
+
+    if (!currentUserId || currentUserId === targetUserId) {
+        return res.status(400).json({ error: 'Invalid unfollow request.' });
+    }
 
     try {
-        const currentUser = await User.findById(currentUserId);
         const targetUser = await User.findById(targetUserId);
+        const currentUser = await User.findById(currentUserId);
 
-        if (!currentUser || !targetUser) {
-            return res.status(404).json({ error: "User not found." });
+        if (!targetUser || !currentUser) {
+            return res.status(404).json({ error: 'User not found.' });
         }
 
-        currentUser.following = currentUser.following.filter(
-            (id) => id.toString() !== targetUserId
-        );
-        targetUser.followers = targetUser.followers.filter(
-            (id) => id.toString() !== currentUserId
-        );
+        targetUser.followers = targetUser.followers.filter(id => id.toString() !== currentUserId);
+        currentUser.following = currentUser.following.filter(id => id.toString() !== targetUserId);
 
-        await currentUser.save();
         await targetUser.save();
+        await currentUser.save();
 
-        res.status(200).json({ message: 'Unfollowed successfully.' });
+        res.status(200).json({ message: 'Unfollowed successfully' });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

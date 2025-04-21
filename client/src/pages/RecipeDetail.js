@@ -1,11 +1,15 @@
 ﻿import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { addIngredientsToShoppingList } from '../api/shoppingListApi';
 
 const RecipeDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const { currentUser } = useAuth();
     const [recipe, setRecipe] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [message, setMessage] = useState('');
 
     useEffect(() => {
         const fetchRecipe = async () => {
@@ -22,6 +26,18 @@ const RecipeDetail = () => {
         fetchRecipe();
     }, [id]);
 
+    const handleAddToShoppingList = async () => {
+        if (!currentUser?.mongoId) return alert('User ID not found.');
+
+        try {
+            await addIngredientsToShoppingList(currentUser.mongoId, recipe.ingredients);
+            setMessage('✅ Ingredients added to your shopping list!');
+        } catch (err) {
+            console.error('Error adding ingredients:', err);
+            setMessage('❌ Failed to add ingredients.');
+        }
+    };
+
     if (loading) return <p className="text-center">Loading...</p>;
     if (!recipe) return <p className="text-center text-red-600">Recipe not found.</p>;
 
@@ -35,6 +51,20 @@ const RecipeDetail = () => {
             </button>
 
             <h2 className="text-3xl font-bold mb-2">{recipe.title}</h2>
+
+            <div className="text-sm text-gray-600 mb-2">
+                Posted by{' '}
+                <span className="font-medium">
+                    <a
+                        href={`/user/${recipe.createdBy?.username || ''}`}
+                        className="text-blue-600 hover:underline"
+                    >
+                        {recipe.createdBy?.username || recipe.userEmail}
+                    </a>
+                </span>{' '}
+                on {new Date(recipe.createdAt).toLocaleDateString()}
+            </div>
+
             <p className="text-gray-700 mb-2">{recipe.description}</p>
             <p><strong>Cook Time:</strong> {recipe.cookTime}</p>
             <p><strong>Prep Time:</strong> {recipe.prepTime}</p>
@@ -57,6 +87,15 @@ const RecipeDetail = () => {
                     ))}
                 </ol>
             </div>
+
+            <button
+                onClick={handleAddToShoppingList}
+                className="mt-6 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+            >
+                Add Ingredients to Shopping List
+            </button>
+
+            {message && <p className="mt-3 text-center text-sm text-blue-600">{message}</p>}
         </div>
     );
 };

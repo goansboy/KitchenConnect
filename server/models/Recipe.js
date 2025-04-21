@@ -9,7 +9,8 @@ const RecipeSchema = new mongoose.Schema({
     prepTime: String,
     servings: Number,
     userEmail: { type: String, required: true }, 
-    createdAt: { type: Date, default: Date.now }
+    createdAt: { type: Date, default: Date.now },
+    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
 });
 
 module.exports = mongoose.model('Recipe', RecipeSchema);

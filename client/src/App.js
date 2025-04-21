@@ -10,6 +10,9 @@ import RecipeDetail from './pages/RecipeDetail';
 import RecipeForm from './components/RecipeForm';
 import SearchUsers from './pages/SearchUsers';
 import UserProfile from './pages/UserProfiles';
+import ShoppingList from './pages/ShoppingList';
+import Scheduler from './pages/Scheduler';
+
 
 function App() {
     return (
@@ -29,6 +32,7 @@ function App() {
                                 </PrivateRoute>
                             }
                         />
+
                         <Route
                             path="/my-recipes"
                             element={
@@ -37,6 +41,16 @@ function App() {
                                 </PrivateRoute>
                             }
                         />
+
+                        <Route
+                            path="/shopping-list"
+                            element={
+                                <PrivateRoute>
+                                    <ShoppingList />
+                                </PrivateRoute>
+                            }
+                        />
+
                         <Route
                             path="/recipes/:id"
                             element={
@@ -45,6 +59,7 @@ function App() {
                                 </PrivateRoute>
                             }
                         />
+
                         <Route
                             path="/search"
                             element={
@@ -53,6 +68,7 @@ function App() {
                                 </PrivateRoute>
                             }
                         />
+
                         <Route
                             path="/user/:username"
                             element={
@@ -61,6 +77,16 @@ function App() {
                                 </PrivateRoute>
                             }
                         />
+
+                        <Route
+                            path="/scheduler"
+                            element={
+                                <PrivateRoute>
+                                    <Scheduler />
+                                </PrivateRoute>
+                            }
+                        />
+
                         <Route path="/signup" element={<Signup />} />
                         <Route path="/login" element={<Login />} />
                     </Routes>

@@ -38,9 +38,9 @@ const UserSearch = () => {
         const isFollowing = followingMap[userId];
         try {
             if (isFollowing) {
-                await unfollowUser(userId);
+                await unfollowUser(userId, currentUser.mongoId);
             } else {
-                await followUser(userId);
+                await followUser(userId, currentUser.mongoId);
             }
             setFollowingMap((prev) => ({ ...prev, [userId]: !isFollowing }));
         } catch (err) {

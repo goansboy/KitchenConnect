@@ -15,6 +15,7 @@ const RecipeForm = () => {
     });
 
     const { currentUser } = useAuth(); //Get the logged-in user
+    const [message, setMessage] = useState('');
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -27,9 +28,11 @@ const RecipeForm = () => {
             ingredients: formData.ingredients.split(',').map(i => i.trim()),
             steps: formData.steps.split(',').map(s => s.trim()),
             userEmail: currentUser.email,
+            createdBy: currentUser.mongoId
         };
         await createRecipe(recipe);
-        alert('Recipe created!');
+        setMessage('Recipe created!');
+        setTimeout(() => setMessage(''), 3000);
     };
 
     return (
@@ -49,6 +52,9 @@ const RecipeForm = () => {
                 </div>
             ))}
             <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded">Submit</button>
+            {message && (
+                <p className="text-center text-green-600 mt-2">{message}</p>
+            )}
         </form>
     );
 };

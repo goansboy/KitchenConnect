@@ -57,6 +57,7 @@ export const AuthProvider = ({ children }) => {
                             uid: firebaseUser.uid,
                             email: firebaseUser.email,
                             mongoId: mongoUser._id,
+                            username: mongoUser.username,
                         });
                     } else {
                         console.warn('Mongo user not found');

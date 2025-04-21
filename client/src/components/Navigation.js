@@ -1,10 +1,13 @@
-﻿import React from 'react';
+﻿import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+
+
 
 const Navigation = () => {
     const { currentUser, logout } = useAuth();
     const navigate = useNavigate();
+    const [showDropdown, setShowDropdown] = useState(false);
 
     const handleLogout = async () => {
         try {
@@ -22,8 +25,51 @@ const Navigation = () => {
 
                 {currentUser && (
                     <>
-                        <Link to="/my-recipes" className="text-blue-600 hover:underline">My Recipes</Link>
-                        <Link to="/search" className="text-blue-600 hover:underline">Search Users</Link>
+                        <div className="relative inline-block text-left">
+                            <button
+                                onClick={() => setShowDropdown(prev => !prev)}
+                                className="text-blue-600 hover:underline"
+                            >
+                                Dashboard ▼
+                            </button>
+
+                            {showDropdown && (
+                                <div className="absolute z-10 mt-2 w-40 bg-white border rounded shadow-md">
+                                    <Link
+                                        to="/my-recipes"
+                                        className="block px-4 py-2 hover:bg-gray-100 text-sm"
+                                        onClick={() => setShowDropdown(false)}
+                                    >
+                                        My Recipes
+                                    </Link>
+                                    <Link
+                                        to="/scheduler"
+                                        className="block px-4 py-2 hover:bg-gray-100 text-sm"
+                                        onClick={() => setShowDropdown(false)}
+                                    >
+                                        Scheduler
+                                    </Link>
+                                    <Link
+                                        to="/shopping-list"
+                                        className="block px-4 py-2 hover:bg-gray-100 text-sm"
+                                        onClick={() => setShowDropdown(false)}
+                                    >
+                                        Shopping List
+                                    </Link>
+
+                                    <Link
+                                        to="/search"
+                                        className="block px-4 py-2 hover:bg-gray-100 text-sm"
+                                        onClick={() => setShowDropdown(false)}
+                                    >
+                                        Search User
+                                    </Link>
+                                </div>
+                            )}
+                        </div>
+
+                        
+
                         <button onClick={handleLogout} className="text-red-600 hover:underline">
                             Log Out
                         </button>
@@ -38,7 +84,6 @@ const Navigation = () => {
                 )}
             </div>
 
-            
             {currentUser && (
                 <p className="text-sm text-gray-600">
                     Logged in as: <span className="font-medium text-gray-800">

@@ -7,12 +7,16 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const recipeRoutes = require('./routes/recipes');
 const userRoutes = require('./routes/users');
+const shoppingListRoutes = require('./routes/shoppingList');
+const scheduleRoutes = require('./routes/schedule');
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 app.use('/api/recipes', recipeRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/shopping-list', shoppingListRoutes);
+app.use('/api/schedule', scheduleRoutes);
 
 
 // MongoDB connection

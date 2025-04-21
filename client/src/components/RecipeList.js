@@ -1,7 +1,10 @@
 ﻿import React, { useEffect, useState } from 'react';
 import { getAllRecipes, deleteRecipe, updateRecipe } from '../api/recipeApi';
+import { addIngredientsToShoppingList } from '../api/shoppingListApi';
+import { useAuth } from '../contexts/AuthContext';
 
 const RecipeList = () => {
+    const { currentUser } = useAuth();
     const [recipes, setRecipes] = useState([]);
     const [currentlyEditing, setCurrentlyEditing] = useState(null);
     const [editFormData, setEditFormData] = useState({});
@@ -43,6 +46,16 @@ const RecipeList = () => {
             prev.map((r) => (r._id === id ? updated : r))
         );
         setCurrentlyEditing(null);
+    };
+
+    const handleAddToShoppingList = async (ingredients) => {
+        try {
+            await addIngredientsToShoppingList(currentUser.mongoId, ingredients);
+            alert('Ingredients added to shopping list!');
+        } catch (err) {
+            console.error('Failed to add ingredients:', err);
+            alert('Something went wrong.');
+        }
     };
 
     return (
@@ -99,7 +112,7 @@ const RecipeList = () => {
                                         </ol>
                                     </div>
 
-                                    <div className="flex gap-4 mt-2">
+                                    <div className="flex flex-wrap gap-4 mt-2">
                                         <button
                                             className="text-blue-600 hover:underline"
                                             onClick={() => handleEditClick(recipe)}
@@ -116,6 +129,12 @@ const RecipeList = () => {
                                             }}
                                         >
                                             Delete
+                                        </button>
+                                        <button
+                                            className="text-green-600 hover:underline"
+                                            onClick={() => handleAddToShoppingList(recipe.ingredients)}
+                                        >
+                                            Add to Shopping List
                                         </button>
                                     </div>
                                 </>

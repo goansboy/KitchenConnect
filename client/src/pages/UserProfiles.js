@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+﻿import React, { useEffect, useState } from 'react';
+import { useParams, Link } from 'react-router-dom';
 
 const UserProfile = () => {
     const { username } = useParams();
@@ -29,6 +29,16 @@ const UserProfile = () => {
 
     return (
         <div className="max-w-3xl mx-auto p-4 space-y-4">
+            {/* Back to Search button */}
+            <div className="mb-4">
+                <Link
+                    to="/search"
+                    className="inline-block bg-gray-200 text-gray-800 px-3 py-1 rounded hover:bg-gray-300 text-sm"
+                >
+                    ← Back to Search
+                </Link>
+            </div>
+
             <div className="border-b pb-4">
                 <h2 className="text-3xl font-bold">{user.username}</h2>
                 <p className="text-gray-600">{user.email}</p>

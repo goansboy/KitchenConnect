@@ -1,0 +1,23 @@
+# Ignore node modules everywhere
+**/node_modules/
+
+# Ignore .env files in any subfolder
+**/.env
+
+# MacOS
+.DS_Store
+
+# Logs
+*.log
+npm-debug.log*
+
+# Build files
+**/build/
+**/dist/
+
+# dotenv override
+.env.local
+.env.*.local
+
+# Ignore VSCode settings (optional)
+.vscode/
