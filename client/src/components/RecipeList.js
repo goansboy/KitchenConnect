@@ -42,36 +42,35 @@ const RecipeList = () => {
             steps: editFormData.steps.split(',').map((s) => s.trim()),
         };
         const updated = await updateRecipe(id, updatedData);
-        setRecipes((prev) =>
-            prev.map((r) => (r._id === id ? updated : r))
-        );
+        setRecipes((prev) => prev.map((r) => (r._id === id ? updated : r)));
         setCurrentlyEditing(null);
     };
 
     const handleAddToShoppingList = async (ingredients) => {
         try {
             await addIngredientsToShoppingList(currentUser.mongoId, ingredients);
-            alert('Ingredients added to shopping list!');
+            alert('✅ Ingredients added to your shopping list!');
         } catch (err) {
             console.error('Failed to add ingredients:', err);
-            alert('Something went wrong.');
+            alert('❌ Something went wrong.');
         }
     };
 
     return (
-        <div className="max-w-4xl mx-auto p-4 space-y-4">
-            <h2 className="text-2xl font-bold text-center">All Recipes</h2>
+        <div className="max-w-5xl mx-auto p-6 space-y-6">
+            <h2 className="text-3xl font-bold text-center">All Recipes</h2>
+
             {recipes.length === 0 ? (
                 <p className="text-center text-gray-500">No recipes found.</p>
             ) : (
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-4">
                     {recipes.map((recipe) => (
-                        <div key={recipe._id} className="border rounded-lg p-4 shadow bg-white">
+                        <div key={recipe._id} className="border rounded-lg p-4 shadow-sm bg-white">
                             {currentlyEditing === recipe._id ? (
-                                <form onSubmit={(e) => handleUpdateSubmit(e, recipe._id)} className="space-y-2">
+                                <form onSubmit={(e) => handleUpdateSubmit(e, recipe._id)} className="space-y-3">
                                     {['title', 'description', 'ingredients', 'steps', 'cookTime', 'prepTime', 'servings'].map((field) => (
                                         <div key={field}>
-                                            <label className="block text-sm capitalize">{field}</label>
+                                            <label className="block text-sm font-medium capitalize mb-1">{field}</label>
                                             <input
                                                 type="text"
                                                 name={field}
@@ -81,58 +80,66 @@ const RecipeList = () => {
                                             />
                                         </div>
                                     ))}
-                                    <div className="flex gap-2">
-                                        <button type="submit" className="bg-blue-600 text-white px-3 py-1 rounded">Save</button>
-                                        <button type="button" className="text-gray-600" onClick={() => setCurrentlyEditing(null)}>Cancel</button>
+                                    <div className="flex gap-3 mt-4">
+                                        <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">
+                                            Save
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className="text-gray-600 underline"
+                                            onClick={() => setCurrentlyEditing(null)}
+                                        >
+                                            Cancel
+                                        </button>
                                     </div>
                                 </form>
                             ) : (
                                 <>
-                                    <h3 className="text-xl font-semibold">{recipe.title}</h3>
-                                    <p className="text-gray-600">{recipe.description}</p>
-                                    <p><strong>Cook Time:</strong> {recipe.cookTime}</p>
-                                    <p><strong>Prep Time:</strong> {recipe.prepTime}</p>
-                                    <p><strong>Servings:</strong> {recipe.servings}</p>
+                                    <h3 className="text-xl font-semibold text-gray-800">{recipe.title}</h3>
+                                    <p className="text-gray-700 mb-1">{recipe.description}</p>
+                                    <p className="text-sm text-gray-600">
+                                        <strong>Cook:</strong> {recipe.cookTime} mins | <strong>Prep:</strong> {recipe.prepTime} mins | <strong>Servings:</strong> {recipe.servings}
+                                    </p>
 
-                                    <div className="mt-2">
-                                        <p><strong>Ingredients:</strong></p>
-                                        <ul className="list-disc list-inside">
-                                            {recipe.ingredients.map((item, index) => (
-                                                <li key={index}>{item}</li>
+                                    <div className="mt-3">
+                                        <h4 className="font-medium">Ingredients</h4>
+                                        <ul className="list-disc list-inside text-sm text-gray-700">
+                                            {recipe.ingredients.map((item, i) => (
+                                                <li key={i}>{item}</li>
                                             ))}
                                         </ul>
                                     </div>
 
-                                    <div className="mt-2">
-                                        <p><strong>Steps:</strong></p>
-                                        <ol className="list-decimal list-inside">
-                                            {recipe.steps.map((step, index) => (
-                                                <li key={index}>{step}</li>
+                                    <div className="mt-3">
+                                        <h4 className="font-medium">Steps</h4>
+                                        <ol className="list-decimal list-inside text-sm text-gray-700">
+                                            {recipe.steps.map((step, i) => (
+                                                <li key={i}>{step}</li>
                                             ))}
                                         </ol>
                                     </div>
 
-                                    <div className="flex flex-wrap gap-4 mt-2">
+                                    <div className="flex flex-wrap gap-4 mt-4">
                                         <button
-                                            className="text-blue-600 hover:underline"
                                             onClick={() => handleEditClick(recipe)}
+                                            className="text-blue-600 hover:underline text-sm"
                                         >
                                             Edit
                                         </button>
                                         <button
-                                            className="text-red-600 hover:underline"
                                             onClick={async () => {
-                                                if (window.confirm('Are you sure you want to delete this recipe?')) {
+                                                if (window.confirm('Delete this recipe?')) {
                                                     await deleteRecipe(recipe._id);
                                                     setRecipes((prev) => prev.filter((r) => r._id !== recipe._id));
                                                 }
                                             }}
+                                            className="text-red-600 hover:underline text-sm"
                                         >
                                             Delete
                                         </button>
                                         <button
-                                            className="text-green-600 hover:underline"
                                             onClick={() => handleAddToShoppingList(recipe.ingredients)}
+                                            className="text-green-600 hover:underline text-sm"
                                         >
                                             Add to Shopping List
                                         </button>

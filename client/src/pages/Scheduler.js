@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { getAllRecipes } from '../api/recipeApi';
 import { addRecipeToSchedule, getSchedule } from '../api/scheduleApi';
-
 
 const Scheduler = () => {
     const { currentUser } = useAuth();
@@ -13,19 +12,13 @@ const Scheduler = () => {
     const [loading, setLoading] = useState(true);
     const [message, setMessage] = useState('');
 
-
     const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
     useEffect(() => {
         const fetchRecipes = async () => {
             if (!currentUser?.mongoId) return;
-
             try {
                 const data = await getAllRecipes();
-                console.log('Current user ID:', currentUser.mongoId);
-                data.forEach((r) => {
-                    console.log('Recipe:', r.title, '| createdBy:', r.createdBy);
-                });
                 const myRecipes = data.filter((r) => r.createdBy?.toString() === currentUser.mongoId);
                 setUserRecipes(myRecipes);
             } catch (err) {
@@ -53,16 +46,37 @@ const Scheduler = () => {
         }
     }, [currentUser]);
 
+    const handleSchedule = async () => {
+        if (!selectedRecipeId) {
+            setMessage('Please select a recipe.');
+            setTimeout(() => setMessage(''), 3000);
+            return;
+        }
+
+        try {
+            await addRecipeToSchedule(currentUser.mongoId, selectedDay, selectedRecipeId);
+            const updatedSchedule = await getSchedule(currentUser.mongoId);
+            setScheduled(updatedSchedule.schedule || []);
+            setMessage('✅ Recipe scheduled!');
+            setSelectedRecipeId('');
+            setSelectedDay('Monday');
+        } catch (err) {
+            console.error(err);
+            setMessage('❌ Failed to schedule recipe.');
+        } finally {
+            setTimeout(() => setMessage(''), 3000);
+        }
+    };
 
     return (
-        <div className="max-w-4xl mx-auto p-4 space-y-6">
-            <h2 className="text-3xl font-bold text-center">Meal Scheduler</h2>
+        <div style={container}>
+            <h2 style={heading}>Meal Scheduler</h2>
 
-            <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
+            <div style={formRow}>
                 <select
                     value={selectedRecipeId}
                     onChange={(e) => setSelectedRecipeId(e.target.value)}
-                    className="p-2 border rounded"
+                    style={selectStyle}
                 >
                     <option value="">Select a recipe</option>
                     {userRecipes.map((recipe) => (
@@ -75,101 +89,138 @@ const Scheduler = () => {
                 <select
                     value={selectedDay}
                     onChange={(e) => setSelectedDay(e.target.value)}
-                    className="p-2 border rounded"
+                    style={selectStyle}
                 >
                     {days.map((day) => (
                         <option key={day} value={day}>{day}</option>
                     ))}
                 </select>
 
-                <button
-                    className="bg-blue-600 text-white px-4 py-2 rounded"
-                    onClick={async () => {
-                        if (!selectedRecipeId) {
-                            setMessage('Please select a recipe.');
-                            setTimeout(() => setMessage(''), 3000);
-                            return;
-                        }
-
-                        try {
-                            await addRecipeToSchedule(currentUser.mongoId, selectedDay, selectedRecipeId);
-
-                            const updatedSchedule = await getSchedule(currentUser.mongoId);
-                            setScheduled(updatedSchedule.schedule || []);
-
-                            setMessage('Recipe scheduled!');
-                            setSelectedRecipeId('');
-                            setSelectedDay('Monday');
-                        } catch (err) {
-                            console.error(err);
-                            setMessage('Failed to schedule recipe.');
-                        } finally {
-                            setTimeout(() => setMessage(''), 3000);
-                        }
-                    }}
-                >
+                <button onClick={handleSchedule} style={buttonStyle}>
                     Schedule
                 </button>
-
-                {message && (
-                    <p className="text-center text-green-600 mt-2">{message}</p>
-                )}
-
             </div>
 
-            <div className="mt-8 space-y-4">
+            {message && (
+                <p style={{ textAlign: 'center', color: '#007BFF', fontSize: '0.9rem', marginTop: '10px' }}>{message}</p>
+            )}
+
+            <div style={{ marginTop: '30px' }}>
                 {days.map((day) => {
                     const recipesForDay = scheduled.find((entry) => entry.day === day)?.recipes || [];
-
                     return (
-                        <div key={day} className="p-4 border rounded bg-white shadow">
-                            <h3 className="text-xl font-bold mb-2">{day}</h3>
+                        <div key={day} style={dayBox}>
+                            <h3 style={dayTitle}>{day}</h3>
                             {recipesForDay.length === 0 ? (
-                                <p className="text-gray-500">No recipes scheduled.</p>
+                                <p style={{ color: '#666' }}>No recipes scheduled.</p>
                             ) : (
-                                    <ul className="list-disc list-inside">
-                                        {recipesForDay.map((recipe) => (
-                                            <li key={recipe._id} className="flex items-center justify-between">
-                                                <span>{recipe.title}</span>
-                                                <button
-                                                    onClick={async () => {
-                                                        try {
-                                                            const res = await fetch('/api/schedule/remove', {
-                                                                method: 'DELETE',
-                                                                headers: { 'Content-Type': 'application/json' },
-                                                                body: JSON.stringify({
-                                                                    userId: currentUser.mongoId,
-                                                                    day,
-                                                                    recipeId: recipe._id,
-                                                                }),
-                                                            });
+                                <ul style={{ listStyleType: 'disc', paddingLeft: '20px' }}>
+                                    {recipesForDay.map((recipe) => (
+                                        <li key={recipe._id} style={listItemStyle}>
+                                            {recipe.title}
+                                            <button
+                                                onClick={async () => {
+                                                    try {
+                                                        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/schedule/remove`, {
+                                                            method: 'DELETE',
+                                                            headers: { 'Content-Type': 'application/json' },
+                                                            body: JSON.stringify({
+                                                                userId: currentUser.mongoId,
+                                                                day,
+                                                                recipeId: recipe._id,
+                                                            }),
+                                                        });
 
+                                                        if (!res.ok) throw new Error('Failed to remove recipe');
 
-                                                            if (!res.ok) throw new Error('Failed to remove recipe');
-
-                                                            // Refetch updated schedule after deletion
-                                                            const updated = await getSchedule(currentUser.mongoId);
-                                                            setScheduled(updated.schedule || []);
-                                                        } catch (err) {
-                                                            console.error('Failed to remove recipe from schedule:', err);
-                                                        }
-                                                    }}
-                                                    className="text-red-600 text-sm hover:underline ml-2"
-                                                >
-                                                    Remove
-                                                </button>
-                                            </li>
-                                        ))}
-                                    </ul>
-
+                                                        const updated = await getSchedule(currentUser.mongoId);
+                                                        setScheduled(updated.schedule || []);
+                                                    } catch (err) {
+                                                        console.error('Failed to remove recipe from schedule:', err);
+                                                    }
+                                                }}
+                                                style={removeBtn}
+                                            >
+                                                Remove
+                                            </button>
+                                        </li>
+                                    ))}
+                                </ul>
                             )}
                         </div>
                     );
                 })}
             </div>
-
         </div>
     );
+};
+
+const container = {
+    maxWidth: '800px',
+    margin: '0 auto',
+    padding: '20px'
+};
+
+const heading = {
+    fontSize: '2rem',
+    textAlign: 'center',
+    marginBottom: '20px'
+};
+
+const formRow = {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: '12px',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: '10px'
+};
+
+const selectStyle = {
+    padding: '8px',
+    borderRadius: '6px',
+    border: '1px solid #ccc',
+    minWidth: '160px'
+};
+
+const buttonStyle = {
+    backgroundColor: '#007BFF',
+    color: 'white',
+    padding: '8px 16px',
+    borderRadius: '6px',
+    border: 'none',
+    cursor: 'pointer'
+};
+
+const dayBox = {
+    backgroundColor: '#fff',
+    border: '1px solid #ddd',
+    borderRadius: '8px',
+    padding: '16px',
+    marginBottom: '16px',
+    boxShadow: '0 2px 5px rgba(0,0,0,0.05)'
+};
+
+const dayTitle = {
+    fontSize: '1.25rem',
+    fontWeight: 'bold',
+    marginBottom: '8px'
+};
+
+const listItemStyle = {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '6px'
+};
+
+const removeBtn = {
+    color: '#dc3545',
+    background: 'none',
+    border: 'none',
+    cursor: 'pointer',
+    marginLeft: '12px',
+    fontSize: '0.85rem'
 };
 
 export default Scheduler;

@@ -23,7 +23,7 @@ export const AuthProvider = ({ children }) => {
         const firebaseUser = await createUserWithEmailAndPassword(auth, email, password);
 
         // Create user in Mongo
-        await fetch('/api/users/create', {
+        await fetch(`${process.env.REACT_APP_API_URL}/api/users/create`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -48,7 +48,7 @@ export const AuthProvider = ({ children }) => {
         const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
             if (firebaseUser) {
                 try {
-                    const res = await fetch(`/api/users/search?q=${firebaseUser.email}`);
+                    const res = await fetch(`${process.env.REACT_APP_API_URL}/api/users/search?q=${firebaseUser.email}`);
                     const data = await res.json();
                     const mongoUser = data.find((u) => u.email === firebaseUser.email);
 

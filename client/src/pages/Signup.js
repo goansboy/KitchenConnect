@@ -38,9 +38,9 @@ const Signup = () => {
                 username: form.username,
             };
 
-            console.log("Creating user with payload:", payload); // Log to debug
+            console.log("Creating user with payload:", payload);
 
-            const res = await fetch('/api/users/create', {
+            const res = await fetch(`${process.env.REACT_APP_API_URL}/api/users/create`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),
@@ -59,38 +59,84 @@ const Signup = () => {
     };
 
     return (
-        <div className="max-w-md mx-auto mt-10 p-4 border rounded">
-            <h2 className="text-xl font-bold mb-4">Sign Up</h2>
-            {error && <p className="text-red-500 mb-2">{error}</p>}
-            <form onSubmit={handleSubmit} className="space-y-4">
-                <input
-                    type="text"
-                    name="username"
-                    placeholder="Username"
-                    onChange={handleChange}
-                    value={form.username}
-                    className="w-full p-2 border rounded"
-                    required
-                />
-                <input
-                    type="email"
-                    name="email"
-                    placeholder="Email"
-                    onChange={handleChange}
-                    value={form.email}
-                    className="w-full p-2 border rounded"
-                    required
-                />
-                <input
-                    type="password"
-                    name="password"
-                    placeholder="Password"
-                    onChange={handleChange}
-                    value={form.password}
-                    className="w-full p-2 border rounded"
-                    required
-                />
-                <button type="submit" className="w-full bg-green-600 text-white py-2 rounded">
+        <div
+            style={{
+                maxWidth: '400px',
+                margin: '50px auto',
+                padding: '20px',
+                border: '1px solid #ccc',
+                borderRadius: '8px',
+                backgroundColor: '#fff',
+            }}
+        >
+            <h2 style={{ fontSize: '1.5rem', marginBottom: '16px', textAlign: 'center' }}>Create Your Account</h2>
+
+            {error && (
+                <p style={{ color: 'red', marginBottom: '16px', textAlign: 'center' }}>{error}</p>
+            )}
+
+            <form onSubmit={handleSubmit}>
+                <div style={{ marginBottom: '12px' }}>
+                    <input
+                        type="text"
+                        name="username"
+                        placeholder="Username"
+                        value={form.username}
+                        onChange={handleChange}
+                        required
+                        style={{
+                            width: '100%',
+                            padding: '10px',
+                            borderRadius: '4px',
+                            border: '1px solid #ccc',
+                        }}
+                    />
+                </div>
+                <div style={{ marginBottom: '12px' }}>
+                    <input
+                        type="email"
+                        name="email"
+                        placeholder="Email"
+                        value={form.email}
+                        onChange={handleChange}
+                        required
+                        style={{
+                            width: '100%',
+                            padding: '10px',
+                            borderRadius: '4px',
+                            border: '1px solid #ccc',
+                        }}
+                    />
+                </div>
+                <div style={{ marginBottom: '16px' }}>
+                    <input
+                        type="password"
+                        name="password"
+                        placeholder="Password"
+                        value={form.password}
+                        onChange={handleChange}
+                        required
+                        style={{
+                            width: '100%',
+                            padding: '10px',
+                            borderRadius: '4px',
+                            border: '1px solid #ccc',
+                        }}
+                    />
+                </div>
+                <button
+                    type="submit"
+                    style={{
+                        width: '100%',
+                        padding: '10px',
+                        backgroundColor: '#28a745',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        fontWeight: 'bold',
+                    }}
+                >
                     Sign Up
                 </button>
             </form>

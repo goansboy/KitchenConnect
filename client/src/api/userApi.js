@@ -1,5 +1,7 @@
+const API_BASE_URL = 'http://localhost:5000/api/users';
+
 export async function followUser(userId, currentUserId) {
-    const response = await fetch(`/api/users/${userId}/follow`, {
+    const response = await fetch(`${API_BASE_URL}/${userId}/follow`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ currentUserId }),
@@ -10,8 +12,9 @@ export async function followUser(userId, currentUserId) {
     return response.json();
 }
 
+
 export async function unfollowUser(userId, currentUserId) {
-    const response = await fetch(`/api/users/${userId}/unfollow`, {
+    const response = await fetch(`${API_BASE_URL}/${userId}/unfollow`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ currentUserId }),
@@ -21,3 +24,4 @@ export async function unfollowUser(userId, currentUserId) {
     }
     return response.json();
 }
+

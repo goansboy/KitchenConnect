@@ -10,7 +10,14 @@ const RecipeSchema = new mongoose.Schema({
     servings: Number,
     userEmail: { type: String, required: true }, 
     createdAt: { type: Date, default: Date.now },
-    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+
+    originalCreator: {
+        username: String,
+        email: String
+    }
 });
+
+
 
 module.exports = mongoose.model('Recipe', RecipeSchema);

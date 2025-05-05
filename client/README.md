@@ -1,70 +1,132 @@
-# Getting Started with Create React App
+﻿
+# 🍽️ KitchenConnect
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+**KitchenConnect** is a full-stack social platform for cooking lovers. Users can share recipes, schedule meals, build shopping lists, and follow other cooks. Built with **React**, **Node.js**, **Express**, **Firebase**, and **MongoDB Atlas**.
 
-## Available Scripts
+---
 
-In the project directory, you can run:
+## 🚀 Features
 
-### `npm start`
+- User authentication with Firebase
+- Recipe sharing and scheduling
+- Shopping list management
+- Social features: follow users and view their recipes
+- Clean and responsive UI
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+---
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## 🧰 Tech Stack
 
-### `npm test`
+- Frontend: React
+- Backend: Node.js + Express
+- Authentication: Firebase
+- Database: MongoDB Atlas (Cloud)
+- Styling: Plain CSS/JS (no Tailwind in final version)
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+---
 
-### `npm run build`
+## ⚙️ Setup Instructions
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### ✅ Requirements
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+- Node.js (v16+ recommended)
+- npm
+- MongoDB Atlas account
+- Firebase project
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+---
 
-### `npm run eject`
+### 📦 1. Clone the Repository
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+```bash
+git clone https://github.com/goansboy/kitchenconnect.git
+cd kitchenconnect
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+---
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### 🧪 2. Environment Variables
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+#### In `/client/.env`:
 
-## Learn More
+```
+REACT_APP_API_URL=http://localhost:5000
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+#### In `/server/.env`:
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```
+MONGO_URI= your_mongodb_connection_string
+PORT=5000
+```
 
-### Code Splitting
+> Replace `your_mongodb_connection_string` with your MongoDB Atlas URI.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+---
 
-### Analyzing the Bundle Size
+### 🔥 3. Set Up Firebase
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+1. Go to [Firebase Console](https://console.firebase.google.com)
+2. Create a new project
+3. Enable **Email/Password Authentication**
+4. In `/client/src/firebase.js`, paste your Firebase config:
 
-### Making a Progressive Web App
+```js
+const firebaseConfig = {
+  apiKey: "...",
+  authDomain: "...",
+  projectId: "...",
+  appId: "...",
+  // etc.
+};
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+---
 
-### Advanced Configuration
+### 📦 4. Install Dependencies
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+In `/client`:
 
-### Deployment
+```bash
+cd client
+npm install
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+In `/server`:
 
-### `npm run build` fails to minify
+```bash
+cd server
+npm install
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+---
+
+### ▶️ 5. Run the Application
+
+**Start Backend:**
+
+```bash
+cd server
+node server.js
+```
+
+**Start Frontend:**
+
+```bash
+cd client
+npm start
+```
+
+App will run at: `http://localhost:3000`
+
+---
+
+
+## 📌 Notes
+
+- Backend is hosted locally (use MongoDB Atlas in the cloud).
+- Firebase handles authentication securely.
+- Application is structured for easy deployment or Dockerization if needed.
+
+---
+

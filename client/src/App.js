@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Signup from './pages/Signup';
 import Login from './pages/Login';
@@ -12,6 +12,8 @@ import SearchUsers from './pages/SearchUsers';
 import UserProfile from './pages/UserProfiles';
 import ShoppingList from './pages/ShoppingList';
 import Scheduler from './pages/Scheduler';
+import Feed from './pages/Feed';
+import './index.css'
 
 
 function App() {
@@ -23,12 +25,14 @@ function App() {
 
                     <Navigation />
 
+
+
                     <Routes>
                         <Route
                             path="/"
                             element={
                                 <PrivateRoute>
-                                    <RecipeForm />
+                                    <Feed />
                                 </PrivateRoute>
                             }
                         />

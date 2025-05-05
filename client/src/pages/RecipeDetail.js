@@ -1,5 +1,5 @@
 ﻿import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { addIngredientsToShoppingList } from '../api/shoppingListApi';
 
@@ -14,7 +14,7 @@ const RecipeDetail = () => {
     useEffect(() => {
         const fetchRecipe = async () => {
             try {
-                const res = await fetch(`/api/recipes/${id}`);
+                const res = await fetch(`${process.env.REACT_APP_API_URL}/api/recipes/${id}`);
                 const data = await res.json();
                 setRecipe(data);
             } catch (err) {
@@ -28,7 +28,6 @@ const RecipeDetail = () => {
 
     const handleAddToShoppingList = async () => {
         if (!currentUser?.mongoId) return alert('User ID not found.');
-
         try {
             await addIngredientsToShoppingList(currentUser.mongoId, recipe.ingredients);
             setMessage('✅ Ingredients added to your shopping list!');
@@ -38,64 +37,113 @@ const RecipeDetail = () => {
         }
     };
 
-    if (loading) return <p className="text-center">Loading...</p>;
-    if (!recipe) return <p className="text-center text-red-600">Recipe not found.</p>;
+    const handleCloneRecipe = async () => {
+        if (!currentUser?.mongoId) return alert('You must be logged in.');
+
+        try {
+            const res = await fetch(`${process.env.REACT_APP_API_URL}/api/recipes/clone/${recipe._id}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    mongoId: currentUser.mongoId,
+                    userEmail: currentUser.email
+                })
+            });
+
+            if (!res.ok) throw new Error();
+            setMessage('✅ Recipe saved to My Recipes!');
+        } catch (err) {
+            console.error('Error cloning recipe:', err);
+            setMessage('❌ Failed to save recipe.');
+        }
+    };
+
+    if (loading) return <p style={{ textAlign: 'center' }}>Loading...</p>;
+    if (!recipe) return <p style={{ textAlign: 'center', color: 'red' }}>Recipe not found.</p>;
 
     return (
-        <div className="max-w-2xl mx-auto p-4">
-            <button
-                onClick={() => navigate('/my-recipes')}
-                className="mb-4 text-blue-600 hover:underline"
-            >
+        <div style={{ maxWidth: '700px', margin: '0 auto', padding: '20px' }}>
+            <button onClick={() => navigate('/my-recipes')} style={{ marginBottom: '20px' }}>
                 ← Back to My Recipes
             </button>
 
-            <h2 className="text-3xl font-bold mb-2">{recipe.title}</h2>
+            <div style={{
+                border: '1px solid #ddd',
+                borderRadius: '10px',
+                padding: '20px',
+                background: '#fff'
+            }}>
+                <h2 style={{ fontSize: '2rem', marginBottom: '10px' }}>{recipe.title}</h2>
 
-            <div className="text-sm text-gray-600 mb-2">
-                Posted by{' '}
-                <span className="font-medium">
-                    <a
-                        href={`/user/${recipe.createdBy?.username || ''}`}
-                        className="text-blue-600 hover:underline"
+                <div style={{ fontSize: '0.9rem', color: '#555', marginBottom: '10px' }}>
+                    Posted by{' '}
+                    <Link to={`/user/${recipe.createdBy?.username || ''}`} style={{ color: '#1a73e8', textDecoration: 'none' }}>
+                        {recipe.createdBy?.username || 'Unknown'}
+                    </Link>{' '}
+                    on {new Date(recipe.createdAt).toLocaleDateString()}
+                </div>
+
+                <p style={{ marginBottom: '10px' }}>{recipe.description}</p>
+                <p><strong>Cook Time:</strong> {recipe.cookTime} mins</p>
+                <p><strong>Prep Time:</strong> {recipe.prepTime} mins</p>
+                <p><strong>Servings:</strong> {recipe.servings}</p>
+
+                <div style={{ marginTop: '20px' }}>
+                    <h3 style={{ fontWeight: 'bold' }}>Ingredients</h3>
+                    <ul>
+                        {recipe.ingredients.map((item, idx) => (
+                            <li key={idx}>{item}</li>
+                        ))}
+                    </ul>
+                </div>
+
+                <div style={{ marginTop: '20px' }}>
+                    <h3 style={{ fontWeight: 'bold' }}>Steps</h3>
+                    <ol>
+                        {recipe.steps.map((step, idx) => (
+                            <li key={idx}>{step}</li>
+                        ))}
+                    </ol>
+                </div>
+
+                <div style={{ marginTop: '20px', display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                    <button
+                        onClick={handleAddToShoppingList}
+                        style={{
+                            background: 'green',
+                            color: 'white',
+                            padding: '10px 16px',
+                            border: 'none',
+                            borderRadius: '5px',
+                            cursor: 'pointer'
+                        }}
                     >
-                        {recipe.createdBy?.username || recipe.userEmail}
-                    </a>
-                </span>{' '}
-                on {new Date(recipe.createdAt).toLocaleDateString()}
+                        Add Ingredients to Shopping List
+                    </button>
+
+                    {currentUser?.mongoId !== recipe.createdBy?._id && (
+                        <button
+                            onClick={handleCloneRecipe}
+                            style={{
+                                background: '#ff9800',
+                                color: 'white',
+                                padding: '10px 16px',
+                                border: 'none',
+                                borderRadius: '5px',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            Save to My Recipes
+                        </button>
+                    )}
+                </div>
+
+                {message && (
+                    <p style={{ marginTop: '15px', textAlign: 'center', color: '#1a73e8' }}>
+                        {message}
+                    </p>
+                )}
             </div>
-
-            <p className="text-gray-700 mb-2">{recipe.description}</p>
-            <p><strong>Cook Time:</strong> {recipe.cookTime}</p>
-            <p><strong>Prep Time:</strong> {recipe.prepTime}</p>
-            <p><strong>Servings:</strong> {recipe.servings}</p>
-
-            <div className="mt-4">
-                <h3 className="font-semibold">Ingredients</h3>
-                <ul className="list-disc list-inside">
-                    {recipe.ingredients.map((item, idx) => (
-                        <li key={idx}>{item}</li>
-                    ))}
-                </ul>
-            </div>
-
-            <div className="mt-4">
-                <h3 className="font-semibold">Steps</h3>
-                <ol className="list-decimal list-inside">
-                    {recipe.steps.map((step, idx) => (
-                        <li key={idx}>{step}</li>
-                    ))}
-                </ol>
-            </div>
-
-            <button
-                onClick={handleAddToShoppingList}
-                className="mt-6 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-            >
-                Add Ingredients to Shopping List
-            </button>
-
-            {message && <p className="mt-3 text-center text-sm text-blue-600">{message}</p>}
         </div>
     );
 };

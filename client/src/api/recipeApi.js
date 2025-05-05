@@ -36,8 +36,9 @@ export async function updateRecipe(id, recipeData) {
 }
 
 export const getMyRecipes = async (email) => {
-    const res = await fetch(`/api/recipes?userEmail=${email}`);
+    const res = await fetch(`${API_BASE_URL}?userEmail=${email}`);
     return res.json();
 };
+
 
 

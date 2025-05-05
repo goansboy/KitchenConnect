@@ -48,33 +48,58 @@ const ShoppingList = () => {
         }
     };
 
-    if (loading) return <p className="text-center">Loading shopping list...</p>;
-
     return (
-        <div className="max-w-xl mx-auto p-4 space-y-4">
-            <h2 className="text-2xl font-bold text-center">Shopping List</h2>
-            {items.length === 0 ? (
-                <p className="text-center text-gray-500">Your list is empty.</p>
+        <div style={{ maxWidth: '600px', margin: '0 auto', padding: '20px' }}>
+            <h2 style={{ fontSize: '1.8rem', textAlign: 'center', marginBottom: '20px' }}>
+                Shopping List
+            </h2>
+
+            {loading ? (
+                <p style={{ textAlign: 'center' }}>Loading shopping list...</p>
+            ) : items.length === 0 ? (
+                <p style={{ textAlign: 'center', color: '#666' }}>Your list is empty.</p>
             ) : (
-                <ul className="space-y-2">
+                <ul style={{ listStyle: 'none', padding: 0 }}>
                     {items.map((item) => (
                         <li
                             key={item._id}
-                            className="flex justify-between items-center p-2 border rounded bg-white shadow"
+                            style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                padding: '10px',
+                                marginBottom: '10px',
+                                background: '#fff',
+                                border: '1px solid #ddd',
+                                borderRadius: '8px',
+                                boxShadow: '2px 2px 4px rgba(0, 0, 0, 0.05)',
+                            }}
                         >
-                            <div className="flex items-center gap-2">
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                 <input
                                     type="checkbox"
                                     checked={item.checked}
                                     onChange={() => handleToggle(item._id, item.checked)}
                                 />
-                                <span className={item.checked ? 'line-through text-gray-500' : ''}>
+                                <span
+                                    style={{
+                                        textDecoration: item.checked ? 'line-through' : 'none',
+                                        color: item.checked ? '#888' : '#222',
+                                    }}
+                                >
                                     {item.name} ({item.quantity})
                                 </span>
-                            </div>
+                            </label>
+
                             <button
                                 onClick={() => handleDelete(item._id)}
-                                className="text-red-500 text-sm hover:underline"
+                                style={{
+                                    background: 'none',
+                                    border: 'none',
+                                    color: '#d33',
+                                    fontSize: '0.9rem',
+                                    cursor: 'pointer',
+                                }}
                             >
                                 Remove
                             </button>

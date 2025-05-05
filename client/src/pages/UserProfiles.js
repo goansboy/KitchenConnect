@@ -1,16 +1,21 @@
 ﻿import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { addIngredientsToShoppingList } from '../api/shoppingListApi';
+import { useAuth } from '../contexts/AuthContext';
 
 const UserProfile = () => {
     const { username } = useParams();
+    const { currentUser } = useAuth();
     const [user, setUser] = useState(null);
     const [recipes, setRecipes] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [message, setMessage] = useState('');
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchUserProfile = async () => {
             try {
-                const res = await fetch(`/api/users/profile/${username}`);
+                const res = await fetch(`${process.env.REACT_APP_API_URL}/api/users/profile/${username}`);
                 const data = await res.json();
                 setUser(data.user);
                 setRecipes(data.recipes);
@@ -20,43 +25,139 @@ const UserProfile = () => {
                 setLoading(false);
             }
         };
-
         fetchUserProfile();
     }, [username]);
 
-    if (loading) return <p className="text-center">Loading profile...</p>;
-    if (!user) return <p className="text-center text-red-600">User not found.</p>;
+    const handleAddToShoppingList = async (ingredients) => {
+        if (!currentUser?.mongoId) return alert('You must be logged in.');
+
+        try {
+            await addIngredientsToShoppingList(currentUser.mongoId, ingredients);
+            setMessage('✅ Ingredients added to your shopping list!');
+        } catch (err) {
+            console.error('Error adding ingredients:', err);
+            setMessage('❌ Failed to add ingredients.');
+        }
+    };
+
+    const handleCloneRecipe = async (recipeId) => {
+        if (!currentUser?.mongoId) return alert('You must be logged in.');
+
+        try {
+            const res = await fetch(`${process.env.REACT_APP_API_URL}/api/recipes/clone/${recipeId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    mongoId: currentUser.mongoId,
+                    userEmail: currentUser.email
+                })
+            });
+
+            if (!res.ok) throw new Error();
+            setMessage('✅ Recipe saved to My Recipes!');
+        } catch (err) {
+            console.error('Error cloning recipe:', err);
+            setMessage('❌ Failed to save recipe.');
+        }
+    };
+
+    if (loading) return <p style={{ textAlign: 'center' }}>Loading profile...</p>;
+    if (!user) return <p style={{ textAlign: 'center', color: 'red' }}>User not found.</p>;
 
     return (
-        <div className="max-w-3xl mx-auto p-4 space-y-4">
-            {/* Back to Search button */}
-            <div className="mb-4">
-                <Link
-                    to="/search"
-                    className="inline-block bg-gray-200 text-gray-800 px-3 py-1 rounded hover:bg-gray-300 text-sm"
-                >
+        <div style={{ maxWidth: '800px', margin: '0 auto', padding: '20px' }}>
+            {/* Back Link */}
+            <div style={{ marginBottom: '20px' }}>
+                <Link to="/search" style={{ textDecoration: 'none', color: '#333' }}>
                     ← Back to Search
                 </Link>
             </div>
 
-            <div className="border-b pb-4">
-                <h2 className="text-3xl font-bold">{user.username}</h2>
-                <p className="text-gray-600">{user.email}</p>
+            {/* User Header */}
+            <div style={{ borderBottom: '1px solid #ccc', paddingBottom: '12px', marginBottom: '24px' }}>
+                <h2 style={{ fontSize: '2rem', margin: 0 }}>{user.username}</h2>
+                <p style={{ color: '#666' }}>{user.email}</p>
             </div>
 
+            {/* Recipes */}
             <div>
-                <h3 className="text-2xl font-semibold mb-2">Recipes by {user.username}</h3>
+                <h3 style={{ fontSize: '1.5rem', marginBottom: '12px' }}>Recipes by {user.username}</h3>
+
                 {recipes.length === 0 ? (
-                    <p className="text-gray-500">No recipes yet.</p>
+                    <p style={{ color: '#777' }}>No recipes yet.</p>
                 ) : (
-                    <ul className="space-y-3">
+                    <ul style={{ listStyle: 'none', padding: 0 }}>
                         {recipes.map((recipe) => (
-                            <li key={recipe._id} className="p-3 border rounded bg-white shadow">
-                                <h4 className="text-lg font-bold">{recipe.title}</h4>
-                                <p className="text-sm text-gray-600">{recipe.description}</p>
+                            <li
+                                key={recipe._id}
+                                style={{
+                                    border: '1px solid #ddd',
+                                    borderRadius: '8px',
+                                    padding: '16px',
+                                    marginBottom: '16px',
+                                    backgroundColor: '#f9f9f9'
+                                }}
+                            >
+                                <h4 style={{ fontSize: '1.2rem', marginBottom: '4px' }}>{recipe.title}</h4>
+                                <p style={{ marginBottom: '8px', color: '#555' }}>{recipe.description}</p>
+
+                                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                                    <button
+                                        onClick={() => navigate(`/recipes/${recipe._id}`)}
+                                        style={{
+                                            padding: '6px 12px',
+                                            backgroundColor: '#007bff',
+                                            color: 'white',
+                                            border: 'none',
+                                            borderRadius: '4px',
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        View Recipe
+                                    </button>
+
+                                    <button
+                                        onClick={() => handleAddToShoppingList(recipe.ingredients)}
+                                        style={{
+                                            padding: '6px 12px',
+                                            backgroundColor: '#28a745',
+                                            color: 'white',
+                                            border: 'none',
+                                            borderRadius: '4px',
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        Add to Shopping List
+                                    </button>
+
+                                    <button
+                                        onClick={() => handleCloneRecipe(recipe._id)}
+                                        style={{
+                                            padding: '6px 12px',
+                                            backgroundColor: '#ff9800',
+                                            color: 'white',
+                                            border: 'none',
+                                            borderRadius: '4px',
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        Save to My Recipes
+                                    </button>
+                                </div>
                             </li>
                         ))}
                     </ul>
+                )}
+                {message && (
+                    <p
+                        style={{
+                            marginTop: '12px',
+                            textAlign: 'center',
+                            color: message.startsWith('✅') ? 'green' : 'red'
+                        }}
+                    >
+                        {message}
+                    </p>
                 )}
             </div>
         </div>

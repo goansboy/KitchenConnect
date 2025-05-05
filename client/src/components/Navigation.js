@@ -2,8 +2,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
-
-
 const Navigation = () => {
     const { currentUser, logout } = useAuth();
     const navigate = useNavigate();
@@ -19,80 +17,103 @@ const Navigation = () => {
     };
 
     return (
-        <div className="flex flex-col items-center gap-2 pb-4">
-            <div className="flex flex-wrap justify-center gap-4">
-                <Link to="/" className="text-blue-600 hover:underline">Home</Link>
+        <nav style={navContainer}>
+            <div style={navRow}>
+                <Link to="/" style={linkStyle}>Home</Link>
 
-                {currentUser && (
+                {currentUser ? (
                     <>
-                        <div className="relative inline-block text-left">
-                            <button
-                                onClick={() => setShowDropdown(prev => !prev)}
-                                className="text-blue-600 hover:underline"
-                            >
+                        <div style={{ position: 'relative' }}>
+                            <button onClick={() => setShowDropdown(prev => !prev)} style={buttonStyle}>
                                 Dashboard ▼
                             </button>
-
                             {showDropdown && (
-                                <div className="absolute z-10 mt-2 w-40 bg-white border rounded shadow-md">
-                                    <Link
-                                        to="/my-recipes"
-                                        className="block px-4 py-2 hover:bg-gray-100 text-sm"
-                                        onClick={() => setShowDropdown(false)}
-                                    >
-                                        My Recipes
-                                    </Link>
-                                    <Link
-                                        to="/scheduler"
-                                        className="block px-4 py-2 hover:bg-gray-100 text-sm"
-                                        onClick={() => setShowDropdown(false)}
-                                    >
-                                        Scheduler
-                                    </Link>
-                                    <Link
-                                        to="/shopping-list"
-                                        className="block px-4 py-2 hover:bg-gray-100 text-sm"
-                                        onClick={() => setShowDropdown(false)}
-                                    >
-                                        Shopping List
-                                    </Link>
-
-                                    <Link
-                                        to="/search"
-                                        className="block px-4 py-2 hover:bg-gray-100 text-sm"
-                                        onClick={() => setShowDropdown(false)}
-                                    >
-                                        Search User
-                                    </Link>
+                                <div style={dropdownStyle}>
+                                    <Link to="/my-recipes" style={dropdownItem} onClick={() => setShowDropdown(false)}>My Recipes</Link>
+                                    <Link to="/scheduler" style={dropdownItem} onClick={() => setShowDropdown(false)}>Scheduler</Link>
+                                    <Link to="/shopping-list" style={dropdownItem} onClick={() => setShowDropdown(false)}>Shopping List</Link>
+                                    <Link to="/search" style={dropdownItem} onClick={() => setShowDropdown(false)}>Search Users</Link>
                                 </div>
                             )}
                         </div>
-
-                        
-
-                        <button onClick={handleLogout} className="text-red-600 hover:underline">
+                        <button onClick={handleLogout} style={{ ...linkStyle, color: '#dc3545' }}>
                             Log Out
                         </button>
                     </>
-                )}
-
-                {!currentUser && (
+                ) : (
                     <>
-                        <Link to="/signup" className="text-blue-600 hover:underline">Sign Up</Link>
-                        <Link to="/login" className="text-blue-600 hover:underline">Log In</Link>
+                        <Link to="/signup" style={linkStyle}>Sign Up</Link>
+                        <Link to="/login" style={linkStyle}>Log In</Link>
                     </>
                 )}
             </div>
 
             {currentUser && (
-                <p className="text-sm text-gray-600">
-                    Logged in as: <span className="font-medium text-gray-800">
-                        {currentUser.displayName || currentUser.email}
-                    </span>
+                <p style={userInfo}>
+                    Logged in as: <strong>{currentUser.username || currentUser.email}</strong>
                 </p>
             )}
-        </div>
+        </nav>
     );
+};
+
+const navContainer = {
+    padding: '10px 20px',
+    backgroundColor: '#f8f9fa',
+    borderBottom: '1px solid #ddd',
+    marginBottom: '20px'
+};
+
+const navRow = {
+    display: 'flex',
+    gap: '15px',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexWrap: 'wrap'
+};
+
+const linkStyle = {
+    color: '#007BFF',
+    textDecoration: 'none',
+    fontWeight: '500',
+    fontSize: '0.95rem'
+};
+
+const buttonStyle = {
+    background: 'none',
+    border: 'none',
+    color: '#007BFF',
+    cursor: 'pointer',
+    fontWeight: '500',
+    fontSize: '0.95rem'
+};
+
+const dropdownStyle = {
+    position: 'absolute',
+    top: '30px',
+    left: 0,
+    backgroundColor: '#fff',
+    border: '1px solid #ccc',
+    borderRadius: '6px',
+    boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
+    zIndex: 1000,
+    minWidth: '150px'
+};
+
+const dropdownItem = {
+    display: 'block',
+    padding: '8px 12px',
+    color: '#333',
+    textDecoration: 'none',
+    fontSize: '0.9rem',
+    borderBottom: '1px solid #eee'
+};
+
+const userInfo = {
+    textAlign: 'center',
+    fontSize: '0.85rem',
+    color: '#555',
+    marginTop: '8px'
 };
 
 export default Navigation;

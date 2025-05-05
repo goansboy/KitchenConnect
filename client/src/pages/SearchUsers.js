@@ -18,7 +18,7 @@ const UserSearch = () => {
         setLoading(true);
         setError('');
         try {
-            const res = await fetch(`/api/users/search?q=${encodeURIComponent(query)}`);
+            const res = await fetch(`${process.env.REACT_APP_API_URL}/api/users/search?q=${encodeURIComponent(query)}`);
             const data = await res.json();
             setResults(data);
 
@@ -38,10 +38,8 @@ const UserSearch = () => {
         const isFollowing = followingMap[userId];
         try {
             if (isFollowing) {
-                // Pass currentUser.mongoId as the second argument
                 await unfollowUser(userId, currentUser.mongoId);
             } else {
-                // Pass currentUser.mongoId as the second argument
                 await followUser(userId, currentUser.mongoId);
             }
             setFollowingMap((prev) => ({ ...prev, [userId]: !isFollowing }));
@@ -49,40 +47,58 @@ const UserSearch = () => {
             console.error('Follow/unfollow failed:', err);
         }
     };
+
     return (
-        <div className="max-w-md mx-auto p-4 border rounded shadow bg-white">
-            <h2 className="text-xl font-bold mb-2 text-center">Find Other Cooks</h2>
-            <form onSubmit={handleSearch} className="flex space-x-2 mb-4">
+        <div style={{ maxWidth: '600px', margin: '0 auto', padding: '20px', backgroundColor: '#fff', border: '1px solid #ddd', borderRadius: '8px' }}>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '16px', textAlign: 'center' }}>Find Other Cooks</h2>
+
+            <form onSubmit={handleSearch} style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
                 <input
                     type="text"
                     placeholder="Search by username"
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
-                    className="flex-grow p-2 border rounded"
+                    style={{ flex: 1, padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
                 />
-                <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">Search</button>
+                <button type="submit" style={{ padding: '8px 16px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '4px' }}>
+                    Search
+                </button>
             </form>
 
-            {loading && <p className="text-sm text-gray-500">Searching...</p>}
-            {error && <p className="text-red-500">{error}</p>}
+            {loading && <p style={{ fontSize: '0.9rem', color: '#555' }}>Searching...</p>}
+            {error && <p style={{ color: 'red' }}>{error}</p>}
 
-            <ul className="space-y-2">
+            <ul style={{ listStyle: 'none', padding: 0 }}>
                 {results.map((user) => (
-                    <li key={user._id} className="p-2 border rounded bg-gray-100">
-                        <p className="font-semibold">{user.username}</p>
-                        <p className="text-sm text-gray-500">{user.email}</p>
-                        <div className="mt-2 flex gap-2">
+                    <li key={user._id} style={{ padding: '12px', border: '1px solid #eee', borderRadius: '6px', marginBottom: '12px', backgroundColor: '#f9f9f9' }}>
+                        <p style={{ fontWeight: '600', marginBottom: '4px' }}>{user.username}</p>
+                        <p style={{ fontSize: '0.9rem', color: '#666' }}>{user.email}</p>
+                        <div style={{ marginTop: '8px', display: 'flex', gap: '10px' }}>
                             {user._id !== currentUser?.mongoId && (
                                 <button
                                     onClick={() => handleFollowToggle(user._id)}
-                                    className={`px-3 py-1 rounded text-white ${followingMap[user._id] ? 'bg-red-500' : 'bg-green-600'}`}
+                                    style={{
+                                        padding: '6px 12px',
+                                        borderRadius: '4px',
+                                        border: 'none',
+                                        color: 'white',
+                                        backgroundColor: followingMap[user._id] ? '#dc3545' : '#28a745',
+                                        cursor: 'pointer',
+                                    }}
                                 >
                                     {followingMap[user._id] ? 'Unfollow' : 'Follow'}
                                 </button>
                             )}
                             <Link
                                 to={`/user/${user.username}`}
-                                className="px-3 py-1 rounded bg-blue-500 text-white hover:bg-blue-600 text-sm"
+                                style={{
+                                    padding: '6px 12px',
+                                    backgroundColor: '#007bff',
+                                    color: 'white',
+                                    borderRadius: '4px',
+                                    textDecoration: 'none',
+                                    fontSize: '0.9rem'
+                                }}
                             >
                                 View Profile
                             </Link>
